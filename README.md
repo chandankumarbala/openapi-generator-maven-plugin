@@ -1,6 +1,6 @@
 **USAGE**\
-For sample usgae follow `https://github.com/chandankumarbala/spring-boot-3-rest-async-api-example`
-__Not perfect, kind off WIP__
+For sample usgae follow `https://github.com/chandankumarbala/spring-boot-3-rest-async-api-example`\
+__Not perfect, kind of WIP__
 
 ```
 <plugin>
