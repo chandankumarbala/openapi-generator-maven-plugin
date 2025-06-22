@@ -16,12 +16,14 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import io.swagger.v3.oas.models.tags.Tag;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -88,6 +90,34 @@ public class GenerateSpecMojo extends AbstractMojo {
             // 4. Build OpenAPI model
             OpenApiBuilder builder = new OpenApiBuilder();
             OpenAPI openAPI = builder.build(apiTitle, apiVersion, apiDescription, controllers, controllerAdvices);
+
+            // 4.1 Add tags based on controller names from operationIds
+            if (openAPI.getPaths() != null) {
+                openAPI.getPaths().forEach((path, pathItem) -> {
+                    pathItem.readOperations().forEach(operation -> {
+                        String operationId = operation.getOperationId();
+                        if (operationId != null && operationId.contains(".")) {
+                            String controllerName = operationId.substring(0, operationId.indexOf("."));
+
+                            // Add top-level tag if not present
+                            if (openAPI.getTags() == null
+                                    || openAPI.getTags().stream().noneMatch(t -> t.getName().equals(controllerName))) {
+                                openAPI.addTagsItem(new Tag().name(controllerName));
+                            }
+
+                            // Add tag to the operation
+                            if (operation.getTags() == null || !operation.getTags().contains(controllerName)) {
+                                operation.addTagsItem(controllerName);
+                            }
+                        }
+                    });
+                });
+
+                // Sort tags for consistent output
+                if (openAPI.getTags() != null) {
+                    openAPI.getTags().sort(Comparator.comparing(Tag::getName));
+                }
+            }
 
             // 5. Write to YAML file in the target directory
             File outputFile = new File(project.getBuild().getDirectory(), outputFileName);
