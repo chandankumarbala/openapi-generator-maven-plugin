@@ -6,7 +6,7 @@ __Not perfect, kind of WIP__
 <plugin>
   <groupId>com.openapispecs.generator.plugin</groupId>
   <artifactId>openapi-generator-maven-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <executions>
         <execution>
             <goals>
